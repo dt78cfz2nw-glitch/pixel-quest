@@ -1,0 +1,9 @@
+manifest_version = "0.1.0"
+
+[project]
+name = "marketing"
+type = "assets"
+
+[build]
+out = "."
+source = ["index.html", "style.css", "main.js"]

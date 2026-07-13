@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" color-scheme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Quest — Blockchain RPG Adventure</title>
+  <meta name="description" content="Pixel Quest is a free multiplayer RPG built on the Internet Computer blockchain. Explore 8 islands, battle monsters, and compete with players worldwide. Your progress lives on-chain.">
+  <meta name="theme-color" content="#0a0a1a">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Pixel Quest — Blockchain RPG Adventure">
+  <meta property="og:description" content="Pixel Quest is a free multiplayer RPG built on the Internet Computer blockchain. Explore 8 islands, battle monsters, and compete with players worldwide. Your progress lives on-chain.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/og-image.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pixel Quest">
+  <meta name="twitter:description" content="A free multiplayer RPG on the Internet Computer blockchain. Explore 8 islands, battle monsters, and compete worldwide.">
+
+  <!-- Inline SVG favicon: pixel sword -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='7' y='1' width='2' height='10' fill='%23ffdd44'/><rect x='4' y='7' width='8' height='2' fill='%23ffdd44'/><rect x='7' y='11' width='2' height='4' fill='%23aa8800'/></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Pixel Quest home">
+        <span class="nav-logo-icon" aria-hidden="true">⚔</span>
+        <span class="nav-logo-text">PIXEL QUEST</span>
+      </a>
+      <div class="nav-links" id="nav-links" role="list">
+        <a href="#about"       class="nav-link" role="listitem">About</a>
+        <a href="#classes"     class="nav-link" role="listitem">Classes</a>
+        <a href="#world"       class="nav-link" role="listitem">World</a>
+        <a href="#technology"  class="nav-link" role="listitem">Technology</a>
+        <a href="#leaderboard" class="nav-link" role="listitem">Leaderboard</a>
+      </div>
+      <a href="/play" class="btn-play-nav">▶ PLAY NOW</a>
+      <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true" role="dialog" aria-label="Mobile navigation menu">
+    <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close navigation menu">✕</button>
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="#about"       class="mobile-nav-link">About</a>
+      <a href="#classes"     class="mobile-nav-link">Classes</a>
+      <a href="#world"       class="mobile-nav-link">World</a>
+      <a href="#technology"  class="mobile-nav-link">Technology</a>
+      <a href="#leaderboard" class="mobile-nav-link">Leaderboard</a>
+    </nav>
+    <a href="/play" class="btn-play-mobile">▶ PLAY NOW</a>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="hero" aria-label="Hero">
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="parallax-layer layer-sky"    id="layer-sky"    aria-hidden="true"></div>
+    <div class="parallax-layer layer-aurora" id="layer-aurora" aria-hidden="true">
+      <div class="aurora-band"></div>
+    </div>
+    <div class="parallax-layer layer-city"   id="layer-city"   aria-hidden="true">
+      <svg class="city-silhouette" id="city-svg" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <path d="M0,400 L0,320 L40,320 L40,280 L48,280 L48,240 L56,240 L56,200 L64,200 L64,240 L72,240 L72,280 L80,280 L80,320 L120,320 L120,300 L128,300 L128,260 L136,260 L136,220 L144,220 L144,180 L152,180 L152,140 L160,140 L160,100 L168,100 L168,140 L176,140 L176,180 L184,180 L184,220 L192,220 L192,260 L200,260 L200,300 L208,300 L208,320 L240,320 L240,340 L260,340 L260,320 L280,320 L280,290 L288,290 L288,260 L296,260 L296,290 L304,290 L304,320 L320,320 L320,300 L328,300 L328,260 L336,260 L336,220 L344,220 L344,180 L352,180 L352,140 L360,140 L360,120 L368,120 L368,80 L376,80 L376,60 L384,60 L384,80 L392,80 L392,120 L400,120 L400,140 L408,140 L408,180 L416,180 L416,220 L424,220 L424,260 L432,260 L432,300 L440,300 L440,320 L480,320 L480,310 L490,310 L490,270 L500,270 L500,310 L510,310 L510,320 L540,320 L540,300 L548,300 L548,260 L556,260 L556,220 L564,220 L564,180 L572,180 L572,140 L580,140 L580,180 L588,180 L588,220 L596,220 L596,260 L604,260 L604,300 L612,300 L612,320 L640,320 L640,340 L660,340 L660,320 L680,320 L680,300 L688,300 L688,260 L696,260 L696,220 L704,220 L704,180 L712,180 L712,140 L720,140 L720,100 L728,100 L728,60 L736,60 L736,40 L744,40 L744,60 L752,60 L752,100 L760,100 L760,140 L768,140 L768,180 L776,180 L776,220 L784,220 L784,260 L792,260 L792,300 L800,300 L800,320 L830,320 L830,300 L840,300 L840,270 L848,270 L848,300 L858,300 L858,320 L880,320 L880,290 L888,290 L888,250 L896,250 L896,210 L904,210 L904,170 L912,170 L912,130 L920,130 L920,170 L928,170 L928,210 L936,210 L936,250 L944,250 L944,290 L952,290 L952,320 L990,320 L990,340 L1008,340 L1008,320 L1030,320 L1030,300 L1038,300 L1038,260 L1046,260 L1046,220 L1054,220 L1054,180 L1062,180 L1062,140 L1070,140 L1070,100 L1078,100 L1078,60 L1086,60 L1086,100 L1094,100 L1094,140 L1102,140 L1102,180 L1110,180 L1110,220 L1118,220 L1118,260 L1126,260 L1126,300 L1134,300 L1134,320 L1160,320 L1160,300 L1168,300 L1168,260 L1176,260 L1176,220 L1184,220 L1184,260 L1192,260 L1192,300 L1200,300 L1200,320 L1230,320 L1230,310 L1238,310 L1238,280 L1246,280 L1246,240 L1254,240 L1254,200 L1262,200 L1262,160 L1270,160 L1270,120 L1278,120 L1278,80 L1286,80 L1286,120 L1294,120 L1294,160 L1302,160 L1302,200 L1310,200 L1310,240 L1318,240 L1318,280 L1326,280 L1326,310 L1334,310 L1334,320 L1360,320 L1360,340 L1380,340 L1380,320 L1400,320 L1400,300 L1408,300 L1408,260 L1416,260 L1416,220 L1424,220 L1424,260 L1432,260 L1432,300 L1440,300 L1440,320 L1480,320 L1480,300 L1488,300 L1488,260 L1496,260 L1496,300 L1504,300 L1504,320 L1540,320 L1540,290 L1548,290 L1548,250 L1556,250 L1556,210 L1564,210 L1564,250 L1572,250 L1572,290 L1580,290 L1580,320 L1600,320 L1600,400 Z" fill="#1a1040"/>
+      </svg>
+    </div>
+    <div class="parallax-layer layer-particles" id="layer-particles" aria-hidden="true"></div>
+
+    <div class="hero-content">
+      <div class="hero-sword hero-anim hero-anim--sword" aria-hidden="true">⚔</div>
+      <h1 class="hero-title hero-anim hero-anim--title">PIXEL QUEST</h1>
+      <p class="hero-subtitle hero-anim hero-anim--subtitle">A BLOCKCHAIN RPG ADVENTURE</p>
+      <p class="hero-tagline hero-anim hero-anim--tagline">Explore. Battle. Conquer. On-Chain.</p>
+      <div class="hero-buttons hero-anim hero-anim--buttons">
+        <a href="/play" class="btn-primary">▶ PLAY NOW</a>
+        <a href="#about" class="btn-secondary" id="learn-more">↓ LEARN MORE</a>
+      </div>
+      <div class="scroll-indicator hero-anim hero-anim--scroll" id="scroll-indicator" aria-hidden="true">
+        <span class="scroll-arrow">↓</span>
+        <span class="scroll-text">SCROLL TO EXPLORE</span>
+      </div>
+    </div>
+
+    <div class="stats-bar hero-anim hero-anim--stats" id="stats-bar" aria-live="polite" aria-label="Live game statistics">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <span class="stat-dot" aria-hidden="true"></span>
+          <span id="stat-online">-- PLAYERS ONLINE</span>
+        </div>
+        <div class="stat-item stat-center">
+          <span class="stat-trophy" aria-hidden="true">🏆</span>
+          <span id="stat-leader">LEADERBOARD LEADER: --</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-sword" aria-hidden="true">⚔</span>
+          <span id="stat-kills">MONSTERS SLAIN: --</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section class="section section--about" id="about" aria-label="About Pixel Quest">
+    <div class="container">
+      <div class="section-label">ABOUT THE GAME</div>
+      <h2 class="section-title">An RPG Built on the Blockchain</h2>
+      <p class="about-intro">
+        Pixel Quest is an experimental multiplayer RPG running entirely on the Internet Computer blockchain.
+        Every character, item, and achievement is stored on-chain — permanent, uncensorable, and truly yours.
+        Built using Caffeine AI, an artificial intelligence platform that writes and deploys code directly to ICP —
+        Pixel Quest is a living proof of concept: what happens when AI builds a real multiplayer game on a decentralized blockchain?
+      </p>
+      <div class="feature-cards">
+        <div class="feature-card feature-card--gold scroll-reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="6" y="18" width="16" height="12" rx="6" stroke="#ffdd44" stroke-width="3" fill="none"/>
+              <rect x="26" y="18" width="16" height="12" rx="6" stroke="#ffdd44" stroke-width="3" fill="none"/>
+              <line x1="22" y1="24" x2="26" y2="24" stroke="#ffdd44" stroke-width="3"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Truly On-Chain</h3>
+          <p class="feature-text">Your character doesn't live on a company's server. It lives on the Internet Computer blockchain. Shut down the servers — your data survives. Your progress is permanent.</p>
+        </div>
+        <div class="feature-card feature-card--blue scroll-reveal" style="--delay:0.1s">
+          <div class="feature-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="16" cy="16" r="6" stroke="#4466ff" stroke-width="3" fill="none"/>
+              <circle cx="32" cy="16" r="6" stroke="#4466ff" stroke-width="3" fill="none"/>
+              <path d="M4 40c0-8 5.4-13 12-13s12 5 12 13" stroke="#4466ff" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M32 27c6.6 0 12 5 12 13" stroke="#4466ff" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Live Multiplayer</h3>
+          <p class="feature-text">See real players moving across all 8 islands in real time. Chat with adventurers worldwide, cooperate in safe zones, or engage in fierce PVP combat in danger territories.</p>
+        </div>
+        <div class="feature-card feature-card--purple scroll-reveal" style="--delay:0.2s">
+          <div class="feature-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="24" cy="24" r="10" stroke="#8844ff" stroke-width="3" fill="none"/>
+              <circle cx="24" cy="24" r="4" fill="#8844ff"/>
+              <line x1="24" y1="6" x2="24" y2="14" stroke="#8844ff" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="34" x2="24" y2="42" stroke="#8844ff" stroke-width="3" stroke-linecap="round"/>
+              <line x1="6" y1="24" x2="14" y2="24" stroke="#8844ff" stroke-width="3" stroke-linecap="round"/>
+              <line x1="34" y1="24" x2="42" y2="24" stroke="#8844ff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Built by AI</h3>
+          <p class="feature-text">Every line of Motoko backend code and React frontend was generated and deployed by Caffeine AI. No human programmer required. This is the future of software development — and you're playing it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASSES SECTION -->
+  <section class="section section--classes" id="classes" aria-label="Character classes">
+    <div class="container">
+      <div class="section-label">CHOOSE YOUR CLASS</div>
+      <h2 class="section-title">Who Will You Become?</h2>
+      <div class="class-cards">
+        <div class="class-card class-card--warrior scroll-reveal">
+          <div class="class-portrait">
+            <div class="class-glow class-glow--red" aria-hidden="true"></div>
+            <div class="class-sprite warrior-sprite" role="img" aria-label="Warrior character"></div>
+          </div>
+          <div class="class-content">
+            <h3 class="class-title class-title--warrior">WARRIOR</h3>
+            <p class="class-tagline">Guardian. Protector. Unstoppable.</p>
+            <p class="class-desc">Stand at the front line of battle. Warriors command the battlefield with raw power and impenetrable defense. When the Shield Orb activates, a brilliant golden sphere absorbs half of all damage while you fight on relentlessly.</p>
+            <div class="class-stats">
+              <div class="stat-row">
+                <span class="stat-label">HP</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--warrior" style="--w:80%" data-width="80%"></div></div>
+                <span class="stat-val">High</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">MP</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--warrior" style="--w:20%" data-width="20%"></div></div>
+                <span class="stat-val">Low</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">ATK</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--warrior" style="--w:60%" data-width="60%"></div></div>
+                <span class="stat-val">Med</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">DEF</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--warrior" style="--w:80%" data-width="80%"></div></div>
+                <span class="stat-val">High</span>
+              </div>
+            </div>
+            <div class="class-abilities">
+              <div class="ability"><span class="ability-icon" aria-hidden="true">⚔</span><div><strong>Melee Attack</strong><span class="ability-cost">Instant, no MP cost</span></div></div>
+              <div class="ability"><span class="ability-icon" aria-hidden="true">🛡</span><div><strong>Shield Orb</strong><span class="ability-cost">40 MP — 60s invincible stance</span></div></div>
+            </div>
+            <a href="/play" class="btn-class btn-class--warrior">Play as Warrior →</a>
+          </div>
+        </div>
+
+        <div class="class-card class-card--mage scroll-reveal" style="--delay:0.15s">
+          <div class="class-portrait">
+            <div class="class-glow class-glow--blue" aria-hidden="true"></div>
+            <div class="class-sprite mage-sprite" role="img" aria-label="Mage character">
+              <div class="mage-particles" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+          <div class="class-content">
+            <h3 class="class-title class-title--mage">MAGE</h3>
+            <p class="class-tagline">Scholar. Spellcaster. Devastating.</p>
+            <p class="class-desc">Wield the four schools of magic. From rapid Arcane Bolts to ice crystal Frost Novas, piercing Shadow Lances, and explosive Flame Rings — each spell a masterpiece of destruction. Low HP but unmatched magical offense.</p>
+            <div class="class-stats">
+              <div class="stat-row">
+                <span class="stat-label">HP</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--mage" style="--w:20%" data-width="20%"></div></div>
+                <span class="stat-val">Low</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">MP</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--mage" style="--w:80%" data-width="80%"></div></div>
+                <span class="stat-val">High</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">ATK</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--mage" style="--w:40%" data-width="40%"></div></div>
+                <span class="stat-val">Low</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">MAG</span>
+                <div class="stat-bar"><div class="stat-fill stat-fill--mage" style="--w:100%" data-width="100%"></div></div>
+                <span class="stat-val">MAX</span>
+              </div>
+            </div>
+            <div class="class-abilities">
+              <div class="ability"><span class="ability-icon" aria-hidden="true">⚡</span><div><strong>Arcane Bolt</strong><span class="ability-cost">4 MP — fast energy projectile</span></div></div>
+              <div class="ability"><span class="ability-icon" aria-hidden="true">❄</span><div><strong>Frost Nova</strong><span class="ability-cost">10 MP — ice crystal burst</span></div></div>
+              <div class="ability"><span class="ability-icon" aria-hidden="true">🌑</span><div><strong>Shadow Lance</strong><span class="ability-cost">15 MP — piercing dark spike</span></div></div>
+              <div class="ability"><span class="ability-icon" aria-hidden="true">🔥</span><div><strong>Flame Ring</strong><span class="ability-cost">12 MP — fire circle explosion</span></div></div>
+            </div>
+            <a href="/play" class="btn-class btn-class--mage">Play as Mage →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORLD MAP SECTION -->
+  <section class="section section--world" id="world" aria-label="World map">
+    <div class="container">
+      <div class="section-label">EXPLORE THE WORLD</div>
+      <h2 class="section-title">8 Islands Await You</h2>
+      <p class="section-subtitle">Each with unique monsters, secrets, and danger</p>
+      <div class="island-grid">
+        <div class="island-card scroll-reveal" style="--island-color:#4a9e4a;--delay:0s">
+          <div class="island-art island-art--meadow" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--safe">☆ SAFE ZONE</span>
+            <h3 class="island-name" style="color:#6ed86e">Meadow Hub</h3>
+            <div class="island-difficulty">☆ <span>Beginner</span></div>
+            <p class="island-desc">The beginning of your journey. Safe haven and trading post.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#2a7a2a;--delay:0.05s">
+          <div class="island-art island-art--forest" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#88dd44">Forest</h3>
+            <div class="island-difficulty">★★ <span>Moderate</span></div>
+            <p class="island-desc">Shadow wolves lurk between the ancient trees.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#1a3a1a;--delay:0.1s">
+          <div class="island-art island-art--darkforest" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#44aa66">Dark Forest</h3>
+            <div class="island-difficulty">★★★ <span>Hard</span></div>
+            <p class="island-desc">Darkness where nightmares dwell. Few return.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#6622aa;--delay:0.15s">
+          <div class="island-art island-art--aurelion" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--safe">☆ SAFE ZONE</span>
+            <h3 class="island-name" style="color:#cc88ff">Aurelion</h3>
+            <div class="island-difficulty">☆ <span>City</span></div>
+            <p class="island-desc">Ancient magical city of wonders and ancient power.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#aa8833;--delay:0.2s">
+          <div class="island-art island-art--pirate" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#ffcc44">Pirate Island</h3>
+            <div class="island-difficulty">★★★ <span>Hard</span></div>
+            <p class="island-desc">Pirates, cannons, and buried treasure.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#336699;--delay:0.25s">
+          <div class="island-art island-art--cave" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#66aaff">Cave System</h3>
+            <div class="island-difficulty">★★★★ <span>Dangerous</span></div>
+            <p class="island-desc">Deep darkness, crystal trolls, ancient crystals.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#665533;--delay:0.3s">
+          <div class="island-art island-art--ruins" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#cc9966">Ancient Ruins</h3>
+            <div class="island-difficulty">★★★★ <span>Dangerous</span></div>
+            <p class="island-desc">Stone golems guard ancient secrets of the old world.</p>
+          </div>
+        </div>
+        <div class="island-card scroll-reveal" style="--island-color:#aa7722;--delay:0.35s">
+          <div class="island-art island-art--egypt" aria-hidden="true"></div>
+          <div class="island-info">
+            <span class="island-badge island-badge--pvp">⚔ PVP</span>
+            <h3 class="island-name" style="color:#ffcc44">Egypt Island</h3>
+            <div class="island-difficulty">★★★ <span>Hard</span></div>
+            <p class="island-desc">Scorpions, vipers, and the Pharaoh's ancient curse.</p>
+          </div>
+        </div>
+      </div>
+      <p class="more-islands"><em>More islands coming soon...</em></p>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY SECTION -->
+  <section class="section section--tech" id="technology" aria-label="Technology stack">
+    <div class="container">
+      <div class="tech-grid">
+        <div class="tech-text scroll-reveal">
+          <div class="section-label">BUILT ON ICP</div>
+          <h2 class="section-title section-title--left">Powered by Internet Computer</h2>
+          <p class="tech-para">Pixel Quest runs on the Internet Computer Protocol (ICP) — a revolutionary blockchain developed by the DFINITY Foundation. Unlike Ethereum or Solana, ICP can host entire web applications on-chain, including frontend, backend, and database.</p>
+          <p class="tech-para">Game logic runs in 'canisters' — smart contracts that execute at near web-speed performance. Player data, quest progress, leaderboards, and multiplayer state are all stored directly on the blockchain. No servers. No databases. No central point of failure.</p>
+          <p class="tech-para">Authentication uses Internet Identity — ICP's built-in privacy-preserving login system. No email. No password. No personal data stored. Your game account is secured by cryptographic keys only you control.</p>
+          <p class="tech-para tech-para--highlight">This entire game — every canister, every React component, every spell animation — was written and deployed by <strong>Caffeine AI</strong>, an AI coding platform built for Internet Computer. Pixel Quest is our answer to a question: can AI build a real multiplayer game on a blockchain, from scratch, with no human programmer?</p>
+          <div class="tech-badges">
+            <span class="tech-badge" style="border-color:#3b82f6">Internet Computer</span>
+            <span class="tech-badge" style="border-color:#f59e0b">Motoko</span>
+            <span class="tech-badge" style="border-color:#60a5fa">React</span>
+            <span class="tech-badge" style="border-color:#3b82f6">TypeScript</span>
+            <span class="tech-badge" style="border-color:#8844ff">Caffeine AI</span>
+            <span class="tech-badge" style="border-color:#22cc44">Internet Identity</span>
+          </div>
+        </div>
+        <div class="tech-diagram scroll-reveal" style="--delay:0.2s" aria-hidden="true">
+          <div class="diagram-node diagram-node--center">
+            <div class="diagram-icon">🌐</div>
+            <div class="diagram-label">Internet Computer</div>
+          </div>
+          <div class="diagram-connections">
+            <div class="diagram-node">
+              <div class="diagram-icon">🦀</div>
+              <div class="diagram-label">Motoko</div>
+            </div>
+            <div class="diagram-flow">
+              <span class="flow-dot"></span>
+              <span class="flow-dot" style="animation-delay:0.3s"></span>
+              <span class="flow-dot" style="animation-delay:0.6s"></span>
+            </div>
+            <div class="diagram-node">
+              <div class="diagram-icon">⚛</div>
+              <div class="diagram-label">React</div>
+            </div>
+          </div>
+          <div class="diagram-connections diagram-connections--bottom">
+            <div class="diagram-node">
+              <div class="diagram-icon">🤖</div>
+              <div class="diagram-label">Caffeine AI</div>
+            </div>
+            <div class="diagram-node">
+              <div class="diagram-icon">🔑</div>
+              <div class="diagram-label">Internet Identity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS SECTION -->
+  <section class="section section--screenshots" id="screenshots" aria-label="Screenshots">
+    <div class="container">
+      <div class="section-label">SEE THE WORLD</div>
+      <h2 class="section-title">Screenshots</h2>
+      <p class="section-subtitle">Real gameplay, captured in the wild</p>
+      <div class="gallery-grid">
+        <div class="gallery-item scroll-reveal" data-caption="The starting city" style="--delay:0s" tabindex="0" role="button" aria-label="View screenshot: The starting city">
+          <div class="gallery-thumb gallery-thumb--meadow"></div>
+          <div class="gallery-caption">The starting city</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="4 unique spells" style="--delay:0.05s" tabindex="0" role="button" aria-label="View screenshot: 4 unique spells">
+          <div class="gallery-thumb gallery-thumb--spells"></div>
+          <div class="gallery-caption">4 unique spells</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="Terrifying bosses" style="--delay:0.1s" tabindex="0" role="button" aria-label="View screenshot: Terrifying bosses">
+          <div class="gallery-thumb gallery-thumb--boss"></div>
+          <div class="gallery-caption">Terrifying bosses</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="Your hero awaits" style="--delay:0.15s" tabindex="0" role="button" aria-label="View screenshot: Your hero awaits">
+          <div class="gallery-thumb gallery-thumb--creation"></div>
+          <div class="gallery-caption">Your hero awaits</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="Real-time combat" style="--delay:0.2s" tabindex="0" role="button" aria-label="View screenshot: Real-time combat">
+          <div class="gallery-thumb gallery-thumb--combat"></div>
+          <div class="gallery-caption">Real-time combat</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="A city lost to time" style="--delay:0.25s" tabindex="0" role="button" aria-label="View screenshot: A city lost to time">
+          <div class="gallery-thumb gallery-thumb--aurelion"></div>
+          <div class="gallery-caption">A city lost to time</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="8 islands to explore" style="--delay:0.3s" tabindex="0" role="button" aria-label="View screenshot: 8 islands to explore">
+          <div class="gallery-thumb gallery-thumb--worldmap"></div>
+          <div class="gallery-caption">8 islands to explore</div>
+        </div>
+        <div class="gallery-item scroll-reveal" data-caption="Compete worldwide" style="--delay:0.35s" tabindex="0" role="button" aria-label="View screenshot: Compete worldwide">
+          <div class="gallery-thumb gallery-thumb--leaderboard"></div>
+          <div class="gallery-caption">Compete worldwide</div>
+        </div>
+      </div>
+    </div>
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close lightbox">✕</button>
+      <button class="lightbox-prev" id="lightbox-prev" aria-label="Previous screenshot">‹</button>
+      <button class="lightbox-next" id="lightbox-next" aria-label="Next screenshot">›</button>
+      <div class="lightbox-content" id="lightbox-content" role="img"></div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD SECTION -->
+  <section class="section section--leaderboard" id="leaderboard" aria-label="Leaderboard">
+    <div class="container">
+      <div class="trophy-icon" aria-hidden="true">🏆</div>
+      <div class="section-label">HALL OF CHAMPIONS</div>
+      <h2 class="section-title">Top Adventurers</h2>
+      <p class="section-subtitle">Top adventurers across all islands</p>
+      <div class="leaderboard-wrap scroll-reveal">
+        <table class="lb-table" aria-label="Top adventurers leaderboard">
+          <thead>
+            <tr>
+              <th scope="col">RANK</th>
+              <th scope="col">PLAYER</th>
+              <th scope="col">CLASS</th>
+              <th scope="col">LEVEL</th>
+              <th scope="col">KILLS</th>
+              <th scope="col" class="lb-hide-sm">ZONE</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <tr class="lb-loading"><td colspan="6">Loading leaderboard...</td></tr>
+          </tbody>
+        </table>
+        <p class="lb-update-note">Ranks update in real time</p>
+      </div>
+      <a href="/play" class="btn-secondary btn-secondary--center">View Full Leaderboard</a>
+    </div>
+  </section>
+
+  <!-- FINAL CTA SECTION -->
+  <section class="section section--cta" id="cta" aria-label="Play now call to action">
+    <div class="cta-bg" aria-hidden="true"></div>
+    <div class="container cta-content">
+      <h2 class="cta-title scroll-reveal">Your Adventure Begins Now</h2>
+      <p class="cta-subtitle scroll-reveal" style="--delay:0.1s">
+        No download. No installation. Play instantly in your browser.
+        Your progress stored forever on the blockchain.
+      </p>
+      <div class="cta-selling-points scroll-reveal" style="--delay:0.2s">
+        <span>✓ Free to play</span>
+        <span>✓ No account needed (Guest mode)</span>
+        <span>✓ Your data on the blockchain</span>
+      </div>
+      <a href="/play" class="btn-cta scroll-reveal" style="--delay:0.3s">▶ PLAY NOW</a>
+      <p class="cta-guest scroll-reveal" style="--delay:0.4s">
+        <a href="/play?guest=true" class="cta-guest-link">Or play as Guest — no account required</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">⚔ PIXEL QUEST</div>
+          <p class="footer-tagline">A Blockchain RPG Adventure</p>
+          <p class="footer-desc">An AI-built experiment in on-chain gaming. Built with Caffeine AI on Internet Computer.</p>
+          <div class="footer-social" aria-label="Social links">
+            <a href="#" class="social-link" aria-label="Twitter / X">𝕏</a>
+            <a href="#" class="social-link" aria-label="Discord">⬡</a>
+            <a href="#" class="social-link" aria-label="GitHub">⊛</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Quick Links</h4>
+          <nav aria-label="Footer quick links">
+            <a href="#"            class="footer-link">Home</a>
+            <a href="#about"       class="footer-link">About the Game</a>
+            <a href="#classes"     class="footer-link">Choose Your Class</a>
+            <a href="#world"       class="footer-link">Explore the World</a>
+            <a href="#leaderboard" class="footer-link">Leaderboard</a>
+            <a href="/play"        class="footer-link footer-link--play">▶ Play Now</a>
+          </nav>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Technology</h4>
+          <nav aria-label="Technology links">
+            <a href="https://internetcomputer.org"                         class="footer-link" target="_blank" rel="noopener noreferrer">Internet Computer Protocol</a>
+            <a href="https://dfinity.org"                                   class="footer-link" target="_blank" rel="noopener noreferrer">DFINITY Foundation</a>
+            <a href="https://caffeine.ai"                                   class="footer-link" target="_blank" rel="noopener noreferrer">Caffeine AI</a>
+            <a href="https://identity.internetcomputer.org"                class="footer-link" target="_blank" rel="noopener noreferrer">Internet Identity</a>
+            <a href="https://internetcomputer.org/docs/current/concepts/"  class="footer-link" target="_blank" rel="noopener noreferrer">What is ICP?</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer-bar">
+        <span>© 2025 Pixel Quest. Built on ICP.</span>
+        <span>Powered by DFINITY Internet Computer</span>
+        <span>v1.0 — An AI Experiment</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

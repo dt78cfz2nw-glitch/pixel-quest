@@ -1,0 +1,1719 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Full-screen lock: no scroll, no gap, no bounce ── */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  background: #0a1628;
+}
+
+#root {
+  width: 100vw;
+  height: 100dvh; /* dvh accounts for browser chrome on mobile */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #0a1628;
+}
+
+/* ── Pixel-art canvas rendering ── */
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  :root {
+    --font-display: "Space Grotesk";
+    --font-body: "Space Grotesk";
+    --font-mono: "JetBrains Mono";
+    --radius: 0.125rem;
+
+    --background: 0.12 0 0;
+    --foreground: 0.92 0 0;
+    --card: 0.16 0 0;
+    --card-foreground: 0.92 0 0;
+    --popover: 0.16 0 0;
+    --popover-foreground: 0.92 0 0;
+
+    --primary: 0.75 0.2 145;
+    --primary-foreground: 0.12 0 0;
+
+    --secondary: 0.2 0 0;
+    --secondary-foreground: 0.8 0 0;
+    --muted: 0.2 0 0;
+    --muted-foreground: 0.5 0 0;
+
+    --accent: 0.75 0.2 145;
+    --accent-foreground: 0.12 0 0;
+
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 0.92 0 0;
+
+    --border: 0.25 0 0;
+    --input: 0.25 0 0;
+    --ring: 0.75 0.2 145;
+
+    --chart-1: 0.75 0.2 145;
+    --chart-2: 0.65 0.18 25;
+    --chart-3: 0.6 0.16 55;
+    --chart-4: 0.7 0.15 195;
+    --chart-5: 0.55 0.18 95;
+
+    --sidebar: 0.16 0 0;
+    --sidebar-foreground: 0.92 0 0;
+    --sidebar-primary: 0.75 0.2 145;
+    --sidebar-primary-foreground: 0.12 0 0;
+    --sidebar-accent: 0.2 0 0;
+    --sidebar-accent-foreground: 0.8 0 0;
+    --sidebar-border: 0.25 0 0;
+    --sidebar-ring: 0.75 0.2 145;
+
+    /* Class accent colors */
+    --warrior: 0.6 0.22 25;
+    --warrior-foreground: 0.92 0 0;
+    --mage: 0.55 0.18 260;
+    --mage-foreground: 0.92 0 0;
+
+    /* Explicit canvas-readable color vars (used via getComputedStyle) */
+    --color-warrior: oklch(0.6 0.22 25);
+    --color-mage: oklch(0.55 0.18 260);
+
+    /* Tile base colors for pixel-art rendering */
+    --tile-grass-base: 0.32 0.06 145;
+    --tile-grass-border: 0.26 0.04 145;
+    --tile-grass-detail: 0.38 0.08 145;
+    --tile-stone-base: 0.28 0.02 200;
+    --tile-stone-border: 0.22 0.01 200;
+    --tile-stone-detail: 0.34 0.03 200;
+    --tile-wall-base: 0.14 0 0;
+    --tile-wall-border: 0.1 0 0;
+    --tile-wall-detail: 0.18 0.01 240;
+
+    /* Town/cobblestone palette */
+    --tile-cobble-base: 0.35 0.03 200;
+    --tile-cobble-border: 0.28 0.02 200;
+    --tile-cobble-detail: 0.42 0.04 200;
+    --tile-brick-base: 0.4 0.12 25;
+    --tile-brick-border: 0.32 0.1 25;
+    --tile-brick-detail: 0.48 0.14 25;
+    --tile-wood-base: 0.38 0.08 55;
+    --tile-wood-border: 0.3 0.06 55;
+    --tile-wood-detail: 0.46 0.1 55;
+
+    /* Water/River tiles (animated) */
+    --tile-water-base: 0.45 0.12 210;
+    --tile-water-highlight: 0.55 0.14 200;
+    --tile-water-dark: 0.35 0.1 220;
+
+    /* Nature tiles (trees, grass variations, flowers) */
+    --tile-tree-canopy: 0.28 0.08 145;
+    --tile-tree-highlight: 0.38 0.1 145;
+    --tile-grass-light: 0.42 0.08 145;
+    --tile-grass-dark: 0.24 0.05 145;
+    --tile-flower-accent-pink: 0.6 0.16 30;
+    --tile-flower-accent-yellow: 0.65 0.14 90;
+
+    /* Path/Road tiles (wilderness & roads) */
+    --tile-path-base: 0.48 0.08 85;
+    --tile-path-border: 0.4 0.06 85;
+
+    /* Advanced zone palette (darker, more dangerous) */
+    --tile-advanced-grass: 0.22 0.06 145;
+    --tile-advanced-stone: 0.18 0.01 200;
+    --tile-advanced-wall: 0.08 0 0;
+    --tile-advanced-shadow: 0.12 0.01 180;
+
+    /* Customization palette swaps for character appearance */
+    --customization-armor-bronze: 0.5 0.12 45;
+    --customization-armor-silver: 0.6 0.04 200;
+    --customization-armor-gold: 0.55 0.14 85;
+    --customization-robe-purple: 0.55 0.18 260;
+    --customization-robe-blue: 0.5 0.16 255;
+    --customization-robe-green: 0.48 0.14 145;
+
+    /* Crystal Ruins zone palette (dark stone, crystal, ominous glow) */
+    --tile-crystal-base: 0.18 0.02 260;
+    --tile-crystal-highlight: 0.35 0.12 260;
+    --tile-crystal-glow: 0.5 0.15 260;
+    --tile-ruin-stone-base: 0.16 0.01 200;
+    --tile-ruin-stone-shadow: 0.1 0 0;
+    --tile-ruin-crystal-accent: 0.45 0.14 270;
+
+    /* Loot & Item sprites (coin glimmer, item glow) */
+    --loot-coin-base: 0.65 0.14 90;
+    --loot-coin-highlight: 0.75 0.16 85;
+    --loot-item-glow: 0.6 0.12 240;
+
+    /* Portal tile (animated transition point) */
+    --portal-base: 0.35 0.1 260;
+    --portal-glow: 0.65 0.18 260;
+    --portal-edge: 0.25 0.08 260;
+
+    /* Inventory & Loot UI panels */
+    --inventory-slot-empty: 0.18 0 0;
+    --inventory-slot-occupied: 0.25 0.05 145;
+    --inventory-header: 0.14 0 0;
+
+    /* NPC dialogue & interaction */
+    --npc-dialogue-bg: 0.16 0 0;
+    --npc-dialogue-border: 0.35 0.05 260;
+    --npc-name-color: 0.75 0.2 145;
+
+    /* Character Select screen */
+    --character-slot-empty: 0.18 0 0;
+    --character-slot-occupied: 0.25 0.04 200;
+
+    /* ─── ZONE-SPECIFIC PALETTES ─── */
+    /* Meadow Hub (safe, lush, welcoming) */
+    --zone-meadow-base: 0.45 0.1 145;
+    --zone-meadow-highlight: 0.55 0.12 145;
+    --zone-meadow-shadow: 0.35 0.08 145;
+    --zone-meadow-path: 0.48 0.08 85;
+    --zone-meadow-accent: 0.75 0.2 145;
+
+    /* Wolf Forest (dense, predatory, cool) */
+    --zone-forest-wolf-base: 0.28 0.08 145;
+    --zone-forest-wolf-highlight: 0.38 0.1 145;
+    --zone-forest-wolf-shadow: 0.18 0.06 145;
+    --zone-forest-wolf-stone: 0.26 0.02 200;
+    --zone-forest-wolf-accent: 0.55 0.18 260;
+
+    /* Tiger Jungle (tropical, warm, humid) */
+    --zone-jungle-tiger-base: 0.42 0.14 90;
+    --zone-jungle-tiger-highlight: 0.52 0.16 80;
+    --zone-jungle-tiger-shadow: 0.32 0.1 100;
+    --zone-jungle-tiger-foliage: 0.38 0.12 145;
+    --zone-jungle-tiger-accent: 0.65 0.18 30;
+
+    /* Bear Forest (mixed, earthy, rugged) */
+    --zone-forest-bear-base: 0.35 0.06 55;
+    --zone-forest-bear-highlight: 0.45 0.08 50;
+    --zone-forest-bear-shadow: 0.25 0.04 60;
+    --zone-forest-bear-stone: 0.3 0.02 200;
+    --zone-forest-bear-accent: 0.6 0.22 25;
+
+    /* Ancient Ruins (crumbling, desaturated, skeletal) */
+    --zone-ruins-ancient-base: 0.32 0.02 200;
+    --zone-ruins-ancient-highlight: 0.42 0.03 200;
+    --zone-ruins-ancient-shadow: 0.18 0.01 200;
+    --zone-ruins-ancient-stone-detail: 0.38 0.04 55;
+    --zone-ruins-ancient-accent: 0.5 0.08 30;
+
+    /* Crystal Ruins (ominous, dark, magical) */
+    --zone-ruins-crystal-base: 0.16 0.01 200;
+    --zone-ruins-crystal-highlight: 0.35 0.12 260;
+    --zone-ruins-crystal-shadow: 0.08 0 0;
+    --zone-ruins-crystal-glow: 0.5 0.15 260;
+    --zone-ruins-crystal-accent: 0.45 0.14 270;
+
+    /* Bat Cave (dark, underground, cramped) */
+    --zone-cave-bat-base: 0.12 0.01 200;
+    --zone-cave-bat-highlight: 0.22 0.02 200;
+    --zone-cave-bat-shadow: 0.06 0 0;
+    --zone-cave-bat-walls: 0.14 0.01 240;
+    --zone-cave-bat-accent: 0.55 0.18 260;
+
+    /* Spider Cave (organic, creepy, rust-accented) */
+    --zone-cave-spider-base: 0.16 0.03 55;
+    --zone-cave-spider-highlight: 0.26 0.04 50;
+    --zone-cave-spider-shadow: 0.08 0.02 60;
+    --zone-cave-spider-webbing: 0.3 0.02 200;
+    --zone-cave-spider-accent: 0.45 0.12 25;
+
+    /* Cyclops Lair (volcanic, hostile, menacing) */
+    --zone-lair-cyclops-base: 0.28 0.12 25;
+    --zone-lair-cyclops-highlight: 0.38 0.14 20;
+    --zone-lair-cyclops-shadow: 0.16 0.08 30;
+    --zone-lair-cyclops-stone: 0.22 0.02 200;
+    --zone-lair-cyclops-accent: 0.65 0.18 30;
+
+    /* Wilderness / Beginner (varied, accessible) */
+    --zone-wilderness-base: 0.38 0.08 145;
+    --zone-wilderness-highlight: 0.48 0.1 145;
+    --zone-wilderness-shadow: 0.28 0.06 145;
+    --zone-wilderness-path: 0.48 0.08 85;
+    --zone-wilderness-accent: 0.75 0.2 145;
+
+    /* Dungeon (cold, oppressive, grey) */
+    --zone-dungeon-base: 0.24 0.01 200;
+    --zone-dungeon-highlight: 0.34 0.02 200;
+    --zone-dungeon-shadow: 0.12 0.01 200;
+    --zone-dungeon-walls: 0.16 0 0;
+    --zone-dungeon-accent: 0.55 0.18 260;
+
+    /* ─── UI Bar Gradients ─── */
+    --gradient-hp-start: 0.55 0.18 145;
+    --gradient-hp-end: 0.65 0.2 145;
+    --gradient-mp-start: 0.45 0.16 260;
+    --gradient-mp-end: 0.55 0.18 255;
+    --gradient-xp-start: 0.6 0.15 85;
+    --gradient-xp-end: 0.7 0.18 75;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/assets/fonts/SpaceGrotesk.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrainsMono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@layer utilities {
+  /* Animation & Motion
+   *
+   * Character animations: Enhanced walk cycles with 6-frame leg movement, idle breathing 1.5s gentle bob
+   *
+   * Emote icons: Float above character head, fade out over 0.6s (wave, thumbs-up, heart, confused)
+   *
+   * Camera follow: 150ms easing with cubic-bezier(0.25, 0.46, 0.45, 0.94) damping for smooth pursuit
+   *
+   * Scanline: Optional `scanline` 0.15s linear infinite CRT overlay
+   *
+   * Login: Entrance instant; class card hover `opacity-80`, selected state `bg-primary/10`
+   *
+   * D-pad: Active state opacity 1.0 (from 0.6 baseline), instant visual feedback on press
+   *
+   * Attack button: Right-side of D-pad, 48px square, Warrior sword swing 0.3s, Mage projectile sparkle 0.4s */
+
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-camera {
+    transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), "Courier New", monospace;
+  }
+
+  .font-display {
+    font-family: var(--font-display), sans-serif;
+  }
+
+  .font-body {
+    font-family: var(--font-body), sans-serif;
+  }
+
+  /* Class-specific text colors */
+  .text-warrior {
+    color: oklch(var(--warrior));
+  }
+
+  .text-mage {
+    color: oklch(var(--mage));
+  }
+
+  .bg-warrior {
+    background-color: oklch(var(--warrior));
+  }
+
+  .bg-mage {
+    background-color: oklch(var(--mage));
+  }
+
+  /* Pixel-art tile reference colors for canvas rendering */
+  .tile-grass-base {
+    color: oklch(var(--tile-grass-base));
+  }
+
+  .tile-stone-base {
+    color: oklch(var(--tile-stone-base));
+  }
+
+  .tile-wall-base {
+    color: oklch(var(--tile-wall-base));
+  }
+
+  /* HUD styling */
+  .hud-bar {
+    @apply bg-card border-b border-muted;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .hud-section {
+    @apply flex items-center gap-2 px-3 py-2 text-xs uppercase font-mono font-semibold tracking-wider;
+  }
+
+  .class-badge {
+    @apply px-2 py-1 border border-current font-bold text-xs uppercase;
+  }
+
+  .class-badge-warrior {
+    @apply text-warrior border-warrior;
+  }
+
+  .class-badge-mage {
+    @apply text-mage border-mage;
+  }
+
+  /* ─── Login Screen ────────────────────────────────────────────────────── */
+  .login-screen-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: oklch(var(--background));
+  }
+
+  .login-parallax-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .login-parallax-layer-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .login-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 1rem;
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .login-title {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: oklch(0.85 0.18 85);
+    text-shadow: 0 0 20px oklch(0.85 0.18 85 / 0.6), 0 0 40px
+      oklch(0.85 0.18 85 / 0.3);
+    animation: logo-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes logo-pulse {
+    0%,
+    100% {
+      text-shadow: 0 0 20px oklch(0.85 0.18 85 / 0.6), 0 0 40px
+        oklch(0.85 0.18 85 / 0.3);
+    }
+    50% {
+      text-shadow: 0 0 30px oklch(0.85 0.18 85 / 0.8), 0 0 60px
+        oklch(0.85 0.18 85 / 0.5);
+    }
+  }
+
+  .login-subtitle {
+    font-size: 0.875rem;
+    color: oklch(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.5rem;
+  }
+
+  .login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .login-button-primary {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid oklch(0.85 0.18 85);
+    background: oklch(0.85 0.18 85 / 0.12);
+    color: oklch(0.85 0.18 85);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 15px oklch(0.85 0.18 85 / 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+  }
+
+  .login-button-primary:hover {
+    background: oklch(0.85 0.18 85 / 0.2);
+    box-shadow: 0 0 25px oklch(0.85 0.18 85 / 0.4);
+  }
+
+  .login-button-primary:active {
+    transform: scale(0.98);
+  }
+
+  .login-button-secondary {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid oklch(0.5 0.01 200);
+    background: oklch(0.2 0 0 / 0.4);
+    color: oklch(0.6 0.01 200);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 44px;
+  }
+
+  .login-button-secondary:hover {
+    background: oklch(0.25 0 0 / 0.5);
+    border-color: oklch(0.65 0.01 200);
+  }
+
+  .login-button-note {
+    font-size: 0.65rem;
+    color: oklch(var(--muted-foreground));
+    text-align: center;
+    margin-top: 0.25rem;
+  }
+
+  .login-players-online {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: oklch(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    z-index: 20;
+  }
+
+  .login-version {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 0.65rem;
+    color: oklch(var(--muted-foreground) / 0.6);
+    z-index: 20;
+  }
+
+  /* ─── Character Select Screen ──────────────────────────────────────── */
+  .character-select-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    background: oklch(var(--background));
+  }
+
+  @media (max-width: 768px) {
+    .character-select-container {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+  }
+
+  .character-list-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+  }
+
+  .character-slot {
+    @apply bg-card border border-muted rounded p-4 cursor-pointer transition-smooth;
+    border-radius: 6px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .character-slot:hover {
+    border-color: oklch(var(--primary));
+  }
+
+  .character-slot.selected {
+    border: 2px solid oklch(0.85 0.18 85);
+    background: oklch(0.85 0.18 85 / 0.12);
+    box-shadow: 0 0 15px oklch(0.85 0.18 85 / 0.3);
+  }
+
+  .character-slot-empty {
+    @apply bg-muted/20 border-2 border-dashed border-muted rounded p-4 flex items-center justify-center cursor-pointer transition-smooth;
+    color: oklch(var(--muted-foreground));
+    text-align: center;
+    min-height: 100px;
+  }
+
+  .character-slot-empty:hover {
+    @apply border-primary bg-primary/10;
+  }
+
+  .character-name {
+    @apply font-display font-bold text-lg;
+    color: oklch(var(--foreground));
+  }
+
+  .character-meta {
+    @apply text-xs text-muted-foreground space-y-1;
+  }
+
+  .character-preview-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .character-preview {
+    width: 200px;
+    height: 200px;
+    background: oklch(var(--card));
+    border: 2px solid oklch(var(--border));
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .character-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .character-stat {
+    text-align: center;
+  }
+
+  .character-stat-value {
+    @apply font-display font-bold text-lg;
+    color: oklch(var(--primary));
+  }
+
+  .character-stat-label {
+    @apply text-xs text-muted-foreground uppercase;
+  }
+
+  .character-title-display {
+    @apply text-center text-sm font-semibold;
+    color: oklch(0.7 0.15 85);
+  }
+
+  .character-actions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .character-action-enter {
+    flex: 1;
+    padding: 1rem;
+    background: oklch(0.85 0.18 85 / 0.12);
+    border: 2px solid oklch(0.85 0.18 85);
+    color: oklch(0.85 0.18 85);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 48px;
+  }
+
+  .character-action-enter:hover {
+    background: oklch(0.85 0.18 85 / 0.2);
+    box-shadow: 0 0 20px oklch(0.85 0.18 85 / 0.3);
+  }
+
+  .character-action-delete {
+    @apply text-destructive text-xs font-semibold cursor-pointer hover:underline;
+    margin-top: 0.5rem;
+  }
+
+  /* ─── Character Creation ───────────────────────────────────────────── */
+  .character-creation-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: oklch(var(--background));
+  }
+
+  .character-creation-step {
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .character-creation-step-title {
+    @apply font-display font-bold text-2xl text-center mb-4;
+    color: oklch(var(--foreground));
+  }
+
+  .character-creation-step-progress {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: oklch(var(--border));
+  }
+
+  .progress-dot.active {
+    background: oklch(0.85 0.18 85);
+    box-shadow: 0 0 8px oklch(0.85 0.18 85 / 0.5);
+  }
+
+  .class-selector-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .class-card {
+    @apply bg-card border-2 border-muted rounded-lg p-6 cursor-pointer transition-smooth;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 300px;
+  }
+
+  .class-card:hover {
+    border-color: oklch(var(--primary));
+  }
+
+  .class-card.selected {
+    border: 2px solid oklch(0.85 0.18 85);
+    background: oklch(0.85 0.18 85 / 0.12);
+    box-shadow: 0 0 20px oklch(0.85 0.18 85 / 0.3);
+  }
+
+  .class-card-icon {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .class-card-name {
+    @apply font-display font-bold text-lg;
+    color: oklch(var(--foreground));
+  }
+
+  .class-card-description {
+    @apply text-sm text-muted-foreground;
+    color: oklch(var(--muted-foreground));
+  }
+
+  .class-stat-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .class-stat-bar-item {
+    text-align: left;
+  }
+
+  .class-stat-bar-label {
+    @apply text-xs font-mono font-semibold uppercase mb-1;
+    color: oklch(var(--muted-foreground));
+  }
+
+  .class-stat-bar {
+    height: 6px;
+    background: oklch(var(--border));
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .class-stat-bar-fill {
+    height: 100%;
+    background: oklch(var(--primary) / 0.7);
+    border-radius: 999px;
+  }
+
+  /* ─── Loading Screen ───────────────────────────────────────────────── */
+  .loading-screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    background: oklch(var(--background));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .loading-logo {
+    font-size: 2.5rem;
+    animation: logo-pulse 2s ease-in-out infinite;
+  }
+
+  .loading-bar-container {
+    width: 100%;
+    max-width: 300px;
+    height: 8px;
+    background: oklch(var(--border));
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: 0 0 10px oklch(0 0 0 / 0.3);
+  }
+
+  .loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, oklch(0.85 0.18 85), oklch(0.7 0.12 70));
+    animation: loading-fill 2s ease-in-out forwards;
+  }
+
+  @keyframes loading-fill {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  .loading-tip {
+    @apply text-sm text-center text-muted-foreground max-w-sm;
+    animation: fade-in-out 4s ease-in-out infinite;
+  }
+
+  .loading-text {
+    @apply text-xs text-muted-foreground;
+  }
+
+  /* ─── Login card (legacy) ────────────────────────────────────────── */
+  .login-card {
+    @apply bg-card border border-muted rounded;
+  }
+
+  .login-button {
+    @apply bg-primary text-primary-foreground px-4 py-2 border border-primary font-mono uppercase text-xs font-semibold transition-smooth hover:opacity-80;
+  }
+
+  .login-class-selector {
+    @apply flex gap-3 justify-center;
+  }
+
+  .login-class-card {
+    @apply login-card p-4 cursor-pointer border-2 transition-smooth hover:border-primary;
+  }
+
+  .login-class-card.selected {
+    @apply border-primary bg-primary/10;
+  }
+
+  /* Character & Emote styling */
+  .character-shadow {
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+  }
+
+  .character-depth {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.02);
+  }
+
+  .emote-icon {
+    @apply absolute font-mono text-xs pointer-events-none;
+  }
+
+  .emote-wave {
+    animation: wave-emote 0.6s ease-in-out;
+  }
+
+  @keyframes wave-emote {
+    0%,
+    100% {
+      transform: translateY(-20px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-40px);
+      opacity: 0;
+    }
+  }
+
+  /* Attack button animation keyframes */
+  @keyframes attack-swing {
+    0% {
+      transform: rotate(0deg) scaleX(1);
+    }
+    50% {
+      transform: rotate(45deg) scaleX(1.05);
+    }
+    100% {
+      transform: rotate(0deg) scaleX(1);
+    }
+  }
+
+  @keyframes projectile-sparkle {
+    0% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.3) rotate(180deg) translateX(24px);
+      opacity: 0;
+    }
+  }
+
+  /* Mobile D-pad styling */
+  .dpad-button {
+    @apply rounded-sm opacity-60 transition-opacity;
+  }
+
+  .dpad-button-active {
+    @apply opacity-100;
+  }
+
+  /* Attack button styling */
+  .attack-button {
+    @apply rounded-sm opacity-60 transition-opacity cursor-pointer border border-accent;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0.14 0 0 / 0.55);
+    font-size: 1.25rem;
+  }
+
+  .attack-button:hover {
+    @apply opacity-75;
+  }
+
+  .attack-button-active {
+    @apply opacity-100;
+  }
+
+  .attack-button-warrior {
+    animation: attack-swing 0.3s ease-in-out;
+  }
+
+  .attack-button-mage {
+    animation: projectile-sparkle 0.4s ease-out;
+  }
+
+  /* ─── Emote panel ────────────────────────────────────────────────────────── */
+
+  .emote-panel {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: oklch(0.1 0 0 / 0.88);
+    border: 1px solid oklch(0.28 0 0 / 0.7);
+    border-radius: 6px;
+    padding: 8px;
+    min-width: 160px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 16px oklch(0 0 0 / 0.5);
+    animation: emote-panel-in 0.12s ease-out both;
+  }
+
+  @keyframes emote-panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(6px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  .emote-panel-label {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: oklch(0.5 0 0);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .emote-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .emote-panel-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: oklch(0.16 0 0 / 0.7);
+    border: 1px solid oklch(0.26 0 0 / 0.6);
+    border-radius: 4px;
+    padding: 6px 4px;
+    cursor: pointer;
+    transition: background 0.1s ease, border-color 0.1s ease, transform 0.08s
+      ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .emote-panel-btn:hover,
+  .emote-panel-btn:focus-visible {
+    background: oklch(0.75 0.2 145 / 0.15);
+    border-color: oklch(0.75 0.2 145 / 0.6);
+    transform: scale(1.08);
+    outline: none;
+  }
+
+  .emote-panel-btn:active {
+    transform: scale(0.94);
+    background: oklch(0.75 0.2 145 / 0.25);
+  }
+
+  .emote-panel-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .emote-panel-btn-label {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.52rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: oklch(0.6 0 0);
+    white-space: nowrap;
+  }
+
+  /* Emote trigger button (side-aligned, away from gameplay center) */
+  .emote-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: oklch(0.1 0 0 / 0.55);
+    border: 1px solid oklch(0.26 0 0 / 0.45);
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.65;
+    transition: opacity 0.12s ease, background 0.12s ease, border-color 0.12s
+      ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    position: absolute;
+    right: 8px;
+    bottom: calc(100% + 64px);
+    z-index: 30;
+  }
+
+  .emote-trigger-btn:hover,
+  .emote-trigger-btn:focus-visible {
+    opacity: 1;
+    background: oklch(0.16 0 0 / 0.75);
+    border-color: oklch(0.75 0.2 145 / 0.5);
+    outline: none;
+  }
+
+  .emote-trigger-btn:active {
+    opacity: 1;
+    background: oklch(0.75 0.2 145 / 0.15);
+    border-color: oklch(0.75 0.2 145 / 0.8);
+    box-shadow: 0 0 6px oklch(0.75 0.2 145 / 0.3);
+  }
+
+  .emote-trigger-label {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: oklch(0.65 0 0);
+  }
+
+  /* ─── Screen fade transition ────────────────────────────────────────────── */
+  /* Screen fade transition */
+  .screen-fade-enter {
+    opacity: 0;
+  }
+  .screen-fade-enter-active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  .screen-fade-exit {
+    opacity: 1;
+  }
+  .screen-fade-exit-active {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  /* ─── HUD Combat Stats (HP/MP Bars) ────────────────────────────────────── */
+  .hud-stats-bar {
+    @apply w-full bg-card border border-muted rounded;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .hud-stats-fill-hp {
+    background: linear-gradient(
+      90deg,
+      #880000 0%,
+      #ff2222 45%,
+      #ff4444 55%,
+      #880000 100%
+    );
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.2s ease-out;
+    box-shadow: 0 0 5px rgba(220, 20, 60, 0.5);
+  }
+
+  .hud-stats-fill-hp.full {
+    box-shadow: 0 0 8px rgba(220, 20, 60, 0.8);
+  }
+
+  .hud-stats-fill-mp {
+    background: linear-gradient(
+      90deg,
+      #001188 0%,
+      #2255ff 45%,
+      #4477ff 55%,
+      #001188 100%
+    );
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.2s ease-out;
+    box-shadow: 0 0 5px rgba(30, 144, 255, 0.5);
+  }
+
+  .hud-stats-fill-mp.full {
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.8);
+  }
+
+  .hud-stats-fill-xp {
+    background: linear-gradient(
+      90deg,
+      #997700 0%,
+      #ffcc00 45%,
+      #ffdd44 55%,
+      #997700 100%
+    );
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.2s ease-out;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+  }
+
+  .hud-stats-fill-xp.full {
+    box-shadow: 0 0 8px #ffd700, 0 0 3px #ffd700;
+  }
+
+  .hud-stats-label {
+    @apply text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── Depth & Atmosphere Utilities ────────────────────────────────────── */
+  .depth-shadow-strong {
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+  }
+
+  .depth-shadow-subtle {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .depth-vignette {
+    position: relative;
+  }
+
+  .depth-vignette::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.25) 100%
+    );
+  }
+
+  /* ─── Mobile Portrait Canvas Optimization ─────────────────────────────── */
+  .canvas-portrait {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+  }
+
+  @media (max-width: 480px) {
+    .canvas-portrait {
+      aspect-ratio: 8 / 15;
+    }
+  }
+
+  /* ─── Minimap Overlay ──────────────────────────────────────────────────── */
+  .minimap-container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 120px;
+    height: 100px;
+    background: oklch(0.1 0 0 / 0.78);
+    border: 1px solid oklch(0.25 0 0 / 0.6);
+    border-radius: 2px;
+    z-index: 40;
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.4);
+  }
+
+  .minimap-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+
+  .minimap-player-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: oklch(0.92 0 0);
+    border-radius: 50%;
+    box-shadow: 0 0 3px oklch(0.92 0 0 / 0.6);
+    pointer-events: none;
+  }
+
+  /* ─── Portal Tile Animation (on canvas) ──────────────────────────────── */
+  /* Portal animation handled via canvas requestAnimationFrame, no CSS needed */
+
+  /* ─── Loot Drop Visual Feedback (on canvas) ──────────────────────────── */
+  /* Loot coin glimmer and item glow handled via canvas */
+
+  /* ─── Zone Atmospheric Overlays ────────────────────────────────────── */
+  /* Forest zones: deep green shadow for mystery and density */
+  .zone-atmosphere-forest {
+    background: rgba(0, 40, 0, 0.18);
+    pointer-events: none;
+  }
+
+  /* Ruins zones: cold desaturated grey-blue overlay */
+  .zone-atmosphere-ruins {
+    background: rgba(30, 30, 60, 0.2);
+    pointer-events: none;
+    filter: saturate(0.7);
+  }
+
+  /* Cave zones: deep darkness + orange torch vignette */
+  .zone-atmosphere-cave {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(30, 15, 0, 0.12) 0%,
+      rgba(0, 0, 20, 0.35) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Jungle/Warm zones: Golden humid haze */
+  .zone-atmosphere-jungle {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(80, 50, 0, 0.06) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ─── HUD Action Button (hover scale + active press) ──────────────────── */
+  .hud-action-btn {
+    transition: transform 0.1s ease, color 0.15s ease, border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .hud-action-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .hud-action-btn:active {
+    transform: scale(0.93);
+  }
+
+  /* ─── Zone Transition Name Banner ──────────────────────────────────────── */
+  @keyframes zone-banner-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(6px) scale(0.96);
+    }
+    12% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    75% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-6px) scale(0.96);
+    }
+  }
+
+  .zone-banner-animate {
+    animation: zone-banner-in-out 2.8s ease forwards;
+  }
+
+  /* ─── Character Class Visual Markers ────────────────────────────────── */
+  /* Warrior: Bold red-orange accent, armored badge */
+  .character-class-warrior {
+    @apply border-warrior;
+    box-shadow: 0 0 8px oklch(var(--warrior) / 0.3);
+  }
+
+  /* Mage: Violet accent, mystical badge */
+  .character-class-mage {
+    @apply border-mage;
+    box-shadow: 0 0 8px oklch(var(--mage) / 0.3);
+  }
+
+  /* ─── UI Feedback States ───────────────────────────────────────────── */
+  .button-press-effect {
+    animation: button-press-pulse 0.3s ease-out;
+  }
+
+  @keyframes button-press-pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 8px oklch(var(--accent) / 0.5);
+    }
+    50% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 4px oklch(var(--accent) / 0.2);
+    }
+  }
+
+  /* Transition fade per zone accent */
+  .zone-fade-transition {
+    animation: zone-fade-out 0.15s ease-in-out forwards;
+  }
+
+  @keyframes zone-fade-out {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .zone-fade-in {
+    animation: zone-fade-in 0.15s ease-in-out forwards;
+  }
+
+  @keyframes zone-fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* ─── Enhanced Bar Fill Animation ──────────────────────────────────── */
+  .bar-fill-smooth {
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bar-fill-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+
+  .bar-fill-pulse {
+    animation: bar-fill-pulse 2s ease-in-out infinite;
+  }
+
+  /* ─── Loading screen pulse dot ────────────────────────────────────── */
+  @keyframes pq-pulse {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  /* ─── Low Mana Warning Flash ─────────────────────────────────────── */
+  @keyframes mana-flash {
+    0%,
+    100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    25% {
+      opacity: 0.4;
+      filter: brightness(1.6);
+    }
+    50% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    75% {
+      opacity: 0.5;
+      filter: brightness(1.4);
+    }
+  }
+
+  .mana-warning-pulse {
+    animation: mana-flash 1.2s ease-in-out infinite;
+  }
+
+  /* ─── Low HP Heartbeat Pulse ──────────────────────────────────── */
+  @keyframes hp-heartbeat {
+    0% {
+      box-shadow: 0 0 4px rgba(220, 20, 60, 0.4);
+    }
+    14% {
+      box-shadow: 0 0 12px rgba(220, 20, 60, 1), 0 0 20px rgba(220, 20, 60, 0.5);
+    }
+    28% {
+      box-shadow: 0 0 4px rgba(220, 20, 60, 0.3);
+    }
+    42% {
+      box-shadow: 0 0 8px rgba(220, 20, 60, 0.7);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 4px rgba(220, 20, 60, 0.3);
+    }
+  }
+
+  .hp-low-pulse {
+    animation: hp-heartbeat 1s ease-in-out infinite;
+    border-color: rgba(220, 20, 60, 0.65) !important;
+  }
+
+  /* ─── XP Gain Gold Glow Flash ─────────────────────────────────── */
+  @keyframes xp-glow-flash {
+    0% {
+      box-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+    }
+    40% {
+      box-shadow: 0 0 14px rgba(255, 215, 0, 1), 0 0 28px rgba(255, 200, 0, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 4px rgba(255, 215, 0, 0.2);
+    }
+  }
+
+  .xp-bar-glow {
+    animation: xp-glow-flash 0.4s ease-out forwards;
+  }
+
+  /* ─── Screen-edge red danger vignette (low HP heartbeat) ─────── */
+  @keyframes danger-vignette-pulse {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 0.82;
+    }
+  }
+
+  .danger-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 18;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(180, 0, 0, 0.45) 100%
+    );
+    animation: danger-vignette-pulse 1s ease-in-out infinite;
+  }
+
+  /* ─── Death sepia tint overlay ────────────────────────────────── */
+  @keyframes death-sepia-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .death-sepia-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: rgba(60, 20, 0, 0.38);
+    mix-blend-mode: multiply;
+    animation: death-sepia-in 0.4s ease forwards;
+    z-index: 40;
+  }
+
+  /* ─── Red death vignette single pulse ────────────────────────── */
+  @keyframes death-red-vignette {
+    0% {
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.9;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .death-red-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(200, 0, 0, 0.72) 100%
+    );
+    animation: death-red-vignette 0.9s ease-out forwards;
+    z-index: 42;
+  }
+
+  /* ─── YOU DIED dramatic text ──────────────────────────────────── */
+  @keyframes you-died-fade {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .you-died-text {
+    animation: you-died-fade 0.6s ease-out forwards;
+  }
+
+  /* ─── Spell Button Low-Mana Shake ───────────────────────────────── */
+  @keyframes spell-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    15% {
+      transform: translateX(-3px);
+    }
+    30% {
+      transform: translateX(3px);
+    }
+    45% {
+      transform: translateX(-2px);
+    }
+    60% {
+      transform: translateX(2px);
+    }
+    75% {
+      transform: translateX(-1px);
+    }
+  }
+
+  .spell-btn-shake {
+    animation: spell-shake 0.4s ease-in-out forwards;
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.9);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.0);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes bossEnragePulse {
+    0% {
+      opacity: 0.08;
+    }
+    100% {
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes fadeInSlideDown {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes toast-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes xpGainSlide {
+    0% {
+      opacity: 0;
+      transform: translateX(0) translateY(0);
+    }
+    15% {
+      opacity: 1;
+      transform: translateX(0) translateY(-2px);
+    }
+    80% {
+      opacity: 1;
+      transform: translateX(28px) translateY(-6px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(38px) translateY(-8px);
+    }
+  }
+
+  @keyframes goldFlashAnim {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.9;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* ─── HUD Bar Pulse Animations ─────────────────────────────────────────────── */
+  @keyframes hp-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes mp-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.65;
+    }
+  }
+
+  .hp-low-pulse {
+    animation: hp-pulse 1.5s ease-in-out infinite;
+  }
+
+  .mana-warning-pulse {
+    animation: mp-pulse 1.5s ease-in-out infinite;
+  }
+
+  .xp-bar-glow {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    transition: box-shadow 0.15s;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

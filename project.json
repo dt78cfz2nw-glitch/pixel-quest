@@ -1,0 +1,27 @@
+{
+  "overview": "Pixel Quest is a browser-based mobile-first 2D multiplayer RPG on the ICP blockchain with critical hits, status effects, new monsters, expanded loot, crafting, achievements, party/trade/guild systems, and rich visual polish.",
+  "features": [
+    "Critical hits system with class bonuses and gold damage numbers",
+    "New monsters: Forest Spirit, Dark Wisp, Ruins Archer, Kraken Tentacle",
+    "Item rarity tiers with animated legendary borders and colored drop bursts",
+    "New warrior skills: Battle Cry and Second Wind",
+    "New mage skills: Mana Shield and Chain Lightning",
+    "30+ expanded achievements with animated popup",
+    "Dynamic weather: rain, storm, fog, sandstorm",
+    "Crafting table NPC with 7 recipes",
+    "Quick slots bar for instant item use",
+    "Visual polish: death animation, level-up cinematic, ambient life"
+  ],
+  "category": "game",
+  "tags": [
+    "rpg",
+    "multiplayer",
+    "blockchain",
+    "icp",
+    "pixel-art",
+    "combat",
+    "crafting",
+    "achievements"
+  ],
+  "last_updated": "2026-06-02T16:36:23.185Z"
+}

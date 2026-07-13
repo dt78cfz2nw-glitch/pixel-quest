@@ -1,0 +1,218 @@
+// Version: 1.0.0
+type CharacterClass__487210591 = Text;
+type ChatMessage__951453284 =
+  {text : Text; timestamp : Timestamp__1041317731};
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type EmoteType__588115443 = {#confused; #heart; #thumbsUp; #wave};
+type FriendRecord__732624554 =
+  {principalId : Text; status : FriendStatus__1033818758; username : Text};
+type FriendStatus__1033818758 = {#accepted; #pending};
+type GuildChatMessage__366584773 =
+  {
+    senderPrincipal : Text;
+    senderUsername : Text;
+    text : Text;
+    timestamp : Timestamp__126868500
+  };
+type GuildData__381184888 =
+  {
+    chatMessages : [GuildChatMessage__366584773];
+    createdAt : Timestamp__126868500;
+    guildId : Text;
+    leaderId : Principal;
+    maxMembers : Nat;
+    members : [(Principal, Text)];
+    name : Text
+  };
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type Nat__1040412405 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type PartyData__800660610 =
+  {
+    createdAt : Timestamp__831964156;
+    leaderId : Principal;
+    members : [PartyMember__704212729];
+    partyId : Text
+  };
+type PartyInvite__309910917 =
+  {
+    fromPrincipal : Text;
+    fromUsername : Text;
+    partyId : Text;
+    timestamp : Timestamp__831964156;
+    toPrincipal : Principal
+  };
+type PartyMember__704212729 = {principal : Principal; username : Text};
+type PlayerSettings__441684220 =
+  {
+    ambientSound : Bool;
+    autoPickupGold : Bool;
+    chatNotifications : Bool;
+    damageNumbers : Bool;
+    dayNightCycle : Bool;
+    killStreaks : Bool;
+    masterVolume : Float;
+    musicVolume : Float;
+    particleQuality : Text;
+    respawnCity : Text;
+    sfxVolume : Float;
+    smoothCamera : Bool;
+    weatherEffects : Bool
+  };
+type PlayerState__950501746 =
+  {
+    achievements : [Text];
+    activeQuestId : ?Text;
+    activeTitle : ?Text;
+    activityScore : Nat;
+    bountyAmount : ?Nat;
+    characterId : Nat;
+    chatMessages : [ChatMessage__951453284];
+    coins : Nat;
+    completedQuestIds : [Text];
+    craftedItems : ?[Text];
+    currentEmote : ?EmoteType__588115443;
+    deaths : ?Nat;
+    discoveredZones : ?[Text];
+    emoteTimestamp : Timestamp__1041317731;
+    equippedArmor : ?Text;
+    equippedOffhand : ?Text;
+    equippedWeapon : ?Text;
+    friendsList : ?[Text];
+    guildId : ?Text;
+    guildRank : ?Text;
+    hairColor : Text;
+    hp : Nat;
+    inventoryItems : [Text];
+    isWanted : ?Bool;
+    kills : Nat;
+    lastActive : Timestamp__1041317731;
+    lastDailyBonus : ?Timestamp__1041317731;
+    lastZone : ?Text;
+    level : Nat;
+    maxHp : Nat;
+    maxMp : Nat;
+    monsterKills : Nat;
+    mp : Nat;
+    outfitColor : Text;
+    outfitStyle : Text;
+    partyId : ?Text;
+    playerTitles : ?[Text];
+    potionCount : ?Nat;
+    pvpKills : Nat;
+    pvpKillsSession : ?Nat;
+    questProgress : ?Nat;
+    respawnCity : ?Text;
+    selectedClass : CharacterClass__487210591;
+    skillPoints : ?Nat;
+    skillTree : ?Text;
+    totalPlaytime : ?Nat;
+    username : Username__745559211;
+    x : Nat;
+    xp : Nat;
+    y : Nat
+  };
+type Timestamp__1041317731 = Timestamp__301639476;
+type Timestamp__126868500 = Timestamp__301639476;
+type Timestamp__301639476 = Int;
+type Timestamp__831964156 = Timestamp__301639476;
+type Timestamp__884532980 = Timestamp__301639476;
+type Timestamp__941358098 = Timestamp__301639476;
+type TradeLogEntry__90362955 =
+  {
+    counterpartyUsername : Text;
+    goldChange : Int;
+    offeredItemIds : [Text];
+    receivedItemIds : [Text];
+    timestamp : Timestamp__941358098;
+    tradeId : Text
+  };
+type TradeOffer__728068716 =
+  {
+    accepted : Bool;
+    goldAmount : Nat;
+    itemIds : [Text];
+    principal : Principal
+  };
+type TradeSession__442736960 =
+  {
+    completedAt : ?Timestamp__941358098;
+    createdAt : Timestamp__941358098;
+    offerA : TradeOffer__728068716;
+    offerB : TradeOffer__728068716;
+    tradeId : Text
+  };
+type Username__115559951 = Text;
+type Username__745559211 = Username__115559951;
+type WhisperMessage__295815663 =
+  {from : Text; text : Text; timestamp : Timestamp__884532980; to : Text};
+actor {
+  stable SECONDS_PER_DAY : Int;
+  stable discoveriesMap :
+    {
+      var root : Node__1000929467<Principal, [Text]>;
+      var size : Nat__1040412405
+    };
+  stable friendsMap :
+    {
+      var root : Node__1000929467<Principal, [FriendRecord__732624554]>;
+      var size : Nat__1040412405
+    };
+  stable guildNamesMap :
+    {var root : Node__1000929467<Text, Text>; var size : Nat__1040412405};
+  stable guildsMap :
+    {
+      var root : Node__1000929467<Text, GuildData__381184888>;
+      var size : Nat__1040412405
+    };
+  stable nicknameRegistry :
+    {
+      var root : Node__1000929467<Text, Principal>;
+      var size : Nat__1040412405
+    };
+  stable partiesMap :
+    {
+      var root : Node__1000929467<Text, PartyData__800660610>;
+      var size : Nat__1040412405
+    };
+  stable partyInvitesMap :
+    {
+      var root : Node__1000929467<Principal, PartyInvite__309910917>;
+      var size : Nat__1040412405
+    };
+  stable players :
+    {
+      var root : Node__1000929467<Principal, PlayerState__950501746>;
+      var size : Nat__1040412405
+    };
+  stable settingsMap :
+    {
+      var root : Node__1000929467<Principal, PlayerSettings__441684220>;
+      var size : Nat__1040412405
+    };
+  stable skillTreesMap :
+    {
+      var root : Node__1000929467<Principal, Text>;
+      var size : Nat__1040412405
+    };
+  stable tradeLogsMap :
+    {
+      var root : Node__1000929467<Principal, [TradeLogEntry__90362955]>;
+      var size : Nat__1040412405
+    };
+  stable tradesMap :
+    {
+      var root : Node__1000929467<Text, TradeSession__442736960>;
+      var size : Nat__1040412405
+    };
+  stable whispersMap :
+    {
+      var root : Node__1000929467<Principal, [WhisperMessage__295815663]>;
+      var size : Nat__1040412405
+    }
+};

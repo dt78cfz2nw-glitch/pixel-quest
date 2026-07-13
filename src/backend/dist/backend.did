@@ -1,0 +1,359 @@
+type WhisperMessage = 
+ record {
+   from: text;
+   "text": text;
+   timestamp: Timestamp;
+   to: text;
+ };
+type Username = text;
+type TradeSession = 
+ record {
+   completedAt: opt Timestamp;
+   createdAt: Timestamp;
+   offerA: TradeOffer;
+   offerB: TradeOffer;
+   tradeId: text;
+ };
+type TradeOffer = 
+ record {
+   accepted: bool;
+   goldAmount: nat;
+   itemIds: vec text;
+   "principal": principal;
+ };
+type TradeLogEntry = 
+ record {
+   counterpartyUsername: text;
+   goldChange: int;
+   offeredItemIds: vec text;
+   receivedItemIds: vec text;
+   timestamp: Timestamp;
+   tradeId: text;
+ };
+type Timestamp = int;
+type PlayerState = 
+ record {
+   achievements: vec text;
+   activeQuestId: opt text;
+   activeTitle: opt text;
+   activityScore: nat;
+   bountyAmount: opt nat;
+   characterId: nat;
+   chatMessages: vec ChatMessage;
+   coins: nat;
+   completedQuestIds: vec text;
+   craftedItems: opt vec text;
+   currentEmote: opt EmoteType;
+   deaths: opt nat;
+   discoveredZones: opt vec text;
+   emoteTimestamp: Timestamp;
+   equippedArmor: opt text;
+   equippedOffhand: opt text;
+   equippedWeapon: opt text;
+   friendsList: opt vec text;
+   guildId: opt text;
+   guildRank: opt text;
+   hairColor: text;
+   hp: nat;
+   inventoryItems: vec text;
+   isWanted: opt bool;
+   kills: nat;
+   lastActive: Timestamp;
+   lastDailyBonus: opt Timestamp;
+   lastZone: opt text;
+   level: nat;
+   maxHp: nat;
+   maxMp: nat;
+   monsterKills: nat;
+   mp: nat;
+   outfitColor: text;
+   outfitStyle: text;
+   partyId: opt text;
+   playerTitles: opt vec text;
+   potionCount: opt nat;
+   pvpKills: nat;
+   pvpKillsSession: opt nat;
+   questProgress: opt nat;
+   respawnCity: opt text;
+   selectedClass: CharacterClass;
+   skillPoints: opt nat;
+   skillTree: opt text;
+   totalPlaytime: opt nat;
+   username: Username;
+   x: nat;
+   xp: nat;
+   y: nat;
+ };
+type PlayerSettings = 
+ record {
+   ambientSound: bool;
+   autoPickupGold: bool;
+   chatNotifications: bool;
+   damageNumbers: bool;
+   dayNightCycle: bool;
+   killStreaks: bool;
+   masterVolume: float64;
+   musicVolume: float64;
+   particleQuality: text;
+   respawnCity: text;
+   sfxVolume: float64;
+   smoothCamera: bool;
+   weatherEffects: bool;
+ };
+type PlayerProfile = 
+ record {
+   activeTitle: text;
+   class: text;
+   coins: nat;
+   deaths: nat;
+   equippedItems: vec text;
+   lastZone: text;
+   level: nat;
+   monsterKills: nat;
+   pvpKills: nat;
+   totalPlaytime: nat;
+   username: Username;
+ };
+type PlayerMessages = 
+ record {
+   messages: vec ChatMessage;
+   "principal": principal;
+   username: Username;
+ };
+type PartyMember = 
+ record {
+   "principal": principal;
+   username: text;
+ };
+type PartyInvite = 
+ record {
+   fromPrincipal: text;
+   fromUsername: text;
+   partyId: text;
+   timestamp: Timestamp;
+   toPrincipal: principal;
+ };
+type PartyData = 
+ record {
+   createdAt: Timestamp;
+   leaderId: principal;
+   members: vec PartyMember;
+   partyId: text;
+ };
+type LeaderboardEntry = 
+ record {
+   activityScore: nat;
+   characterClass: text;
+   lastActive: Timestamp;
+   level: nat;
+   monsterKills: nat;
+   pvpKills: nat;
+   username: Username;
+ };
+type GuildLeaderboardEntry = 
+ record {
+   guildId: text;
+   memberCount: nat;
+   name: text;
+   totalKills: nat;
+   totalMemberLevels: nat;
+ };
+type GuildData = 
+ record {
+   chatMessages: vec GuildChatMessage;
+   createdAt: Timestamp;
+   guildId: text;
+   leaderId: principal;
+   maxMembers: nat;
+   members: vec record {
+                  principal;
+                  text;
+                };
+   name: text;
+ };
+type GuildChatMessage = 
+ record {
+   senderPrincipal: text;
+   senderUsername: text;
+   "text": text;
+   timestamp: Timestamp;
+ };
+type FriendStatus = 
+ variant {
+   accepted;
+   pending;
+ };
+type FriendRecord = 
+ record {
+   principalId: text;
+   status: FriendStatus;
+   username: text;
+ };
+type EmoteType = 
+ variant {
+   confused;
+   heart;
+   thumbsUp;
+   wave;
+ };
+type ChatMessage = 
+ record {
+   "text": text;
+   timestamp: Timestamp;
+ };
+type CharacterClass = text;
+service : {
+  acceptPartyInvite: (acceptingUsername: text) ->
+   (variant {
+      err: text;
+      ok: PartyData;
+    });
+  acceptTrade: (tradeId: text) -> (variant {
+                                     err: text;
+                                     ok: bool;
+                                   });
+  /// Parties: partyId → PartyData
+  applyPvpDamage: (victimPrincipal: principal, damage: nat,
+   attackerPrincipal: principal) ->
+   (record {
+      died: bool;
+      goldDropped: nat;
+      newHp: int;
+      xpLost: nat;
+    });
+  cancelTrade: (tradeId: text) -> (variant {
+                                     err: text;
+                                     ok;
+                                   });
+  checkNicknameAvailable: (name: text) -> (bool) query;
+  claimDailyBonus: () -> (variant {
+                            err: text;
+                            ok: nat;
+                          });
+  collectBounty: (wantedPrincipalText: text) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  collectDroppedGold: (amount: nat) -> (bool);
+  completeQuest: (questId: text) -> ();
+  createGuild: (name: text) -> (variant {
+                                  err: text;
+                                  ok: GuildData;
+                                });
+  getAllCharacters: () -> (vec PlayerProfile) query;
+  getAllPlayers: () -> (vec record {
+                              principal;
+                              PlayerState;
+                            }) query;
+  getCharacterCount: () -> (nat) query;
+  getDiscoveredZones: () -> (vec text);
+  getFriendsList: () -> (vec FriendRecord);
+  /// Social: whisper inbox keyed by Principal → [WhisperMessage]
+  getGuild: (guildId: text) -> (opt GuildData) query;
+  /// Guild names index: lowercase name → guildId for uniqueness
+  getGuildByName: (name: text) -> (opt GuildData) query;
+  getGuildLeaderboard: () -> (vec GuildLeaderboardEntry) query;
+  getGuildMessages: (guildId: text) ->
+   (variant {
+      err: text;
+      ok: vec GuildChatMessage;
+    });
+  getLeaderboard: () -> (vec LeaderboardEntry) query;
+  /// Lowercased nickname -> owner Principal for global uniqueness enforcement
+  getLeaderboardByLevelKills: () -> (vec LeaderboardEntry) query;
+  getMyParty: () -> (opt PartyData);
+  getOnlinePlayerCount: () -> (nat) query;
+  getPendingPartyInvite: () -> (opt PartyInvite);
+  getPlayerAchievements: () -> (vec text);
+  getPlayerSettings: () -> (opt PlayerSettings);
+  getRecentMessages: () -> (vec PlayerMessages) query;
+  getSkillTree: () -> (opt text);
+  getTradeLog: () -> (vec TradeLogEntry);
+  /// Zone discoveries: Principal → [ZoneId]
+  getWhispers: () -> (vec WhisperMessage);
+  grantAchievement: (achievementId: text) -> ();
+  grantTitle: (titleId: text) -> ();
+  initiateTrade: (counterpartyPrincipalText: text) ->
+   (variant {
+      err: text;
+      ok: TradeSession;
+    });
+  inviteToParty: (targetPrincipalText: text, callerUsername: text) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  leaveParty: () -> (variant {
+                       err: text;
+                       ok;
+                     });
+  loadPlayer: (username: Username, selectedClass: CharacterClass) ->
+   (PlayerState);
+  recordAttack: () -> ();
+  recordCraftedItem: (itemId: text) -> ();
+  recordMonsterKill: () -> ();
+  recordPlayerDeath: () -> ();
+  recordPvpKill: () -> (variant {
+                          addedBounty: nat;
+                          becameWanted: nat;
+                          ok;
+                        });
+  registerNickname: (name: text) -> (bool);
+  removeGuild: (guildId: text) -> (variant {
+                                     err: text;
+                                     ok;
+                                   });
+  resetBountyOnSafeZone: () -> ();
+  saveActiveTitle: (title: opt text) -> ();
+  saveDiscoveredZones: (zones: vec text) -> ();
+  saveEmote: (emote: EmoteType) -> ();
+  saveFriendsList: (list: vec FriendRecord) -> ();
+  saveGuildMembership: (guildId: opt text, guildRank: opt text) -> ();
+  savePlayerAchievements: (achievements: vec text) -> ();
+  savePlayerClass: (selectedClass: CharacterClass) -> ();
+  savePlayerCoins: (coins: nat) -> ();
+  savePlayerEquipment: (weapon: opt text, armor: opt text, offhand:
+   opt text) -> ();
+  savePlayerHP: (hp: nat, mp: nat) -> ();
+  savePlayerInventory: (items: vec text) -> ();
+  savePlayerOutfit: (color: text, style: text, hairColor: opt text) -> ();
+  savePlayerPosition: (x: nat, y: nat) -> ();
+  savePlayerSettings: (s: PlayerSettings) -> ();
+  savePlayerTitles: (titles: vec text, activeTitle: opt text) -> ();
+  savePlayerXP: (xp: nat, level: nat) -> ();
+  savePotionCount: (count: nat) -> ();
+  saveQuestProgress: (questId: text, progress: nat) -> ();
+  saveRespawnCity: (cityId: text) -> ();
+  saveSkillTree: (json: text) -> ();
+  saveZoneAndPlaytime: (zone: text, additionalSeconds: nat) -> ();
+  sendChatMessage: ("text": text) -> (variant {
+                                        err: text;
+                                        ok;
+                                      });
+  sendGuildChat: (guildId: text, senderUsername: text, "text": text) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  sendWhisper: (recipientPrincipalText: text, recipientUsername: text,
+   senderUsername: text, "text": text) -> (variant {
+                                             err: text;
+                                             ok;
+                                           });
+  unlockAchievement: (achievementId: text) -> (bool);
+  /// Zone discoveries: Principal → [ZoneId]
+  updateGuildMembers: (guildId: text, members:
+   vec record {
+         principal;
+         text;
+       }) -> (variant {
+                err: text;
+                ok;
+              });
+  updateTradeOffer: (tradeId: text, itemIds: vec text, goldAmount: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+}
